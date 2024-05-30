@@ -16,6 +16,7 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+
 # User model
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -23,9 +24,11 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(150), nullable=False)
     ratings = db.Column(db.PickleType, nullable=True)
 
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
 
 # Load the dataset
 dataset = pd.read_csv('IMDb Top TV Series.csv')
@@ -39,6 +42,7 @@ dataset = dataset[['Title', 'Year', 'Parental Rating', 'Rating', 'Number of Vote
 # Normalize numerical features
 dataset['Rating'] = dataset['Rating'].astype(float)
 
+
 # Function to convert 'Number of Votes' to an integer
 def convert_votes(votes):
     if 'M' in votes:
@@ -47,6 +51,7 @@ def convert_votes(votes):
         return int(float(votes.replace('K', '')) * 1_000)
     else:
         return int(votes)
+
 
 # Apply the function to the 'Number of Votes' column
 dataset['Number of Votes'] = dataset['Number of Votes'].apply(convert_votes)
@@ -71,9 +76,11 @@ cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
 def get_index_from_title(title):
     return dataset[dataset['Title'] == title].index.values[0]
 
+
 # Function to get the title of a TV series from its index
 def get_title_from_index(index):
     return dataset.iloc[index]['Title']
+
 
 # Function to recommend TV series
 def recommend_tv_series(title, num_recommendations=5):
@@ -95,10 +102,12 @@ def recommend_tv_series(title, num_recommendations=5):
 
     return recommendations
 
+
 # Home route
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return redirect(url_for('login'))
+
 
 # Register route
 @app.route('/register', methods=['GET', 'POST'])
@@ -114,6 +123,7 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html')
 
+
 # Login route
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -124,9 +134,10 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password, password):
             login_user(user)
-            return redirect(url_for('index'))
+            return redirect(url_for('rate'))
         return 'Invalid credentials'
     return render_template('login.html')
+
 
 # Logout route
 @app.route('/logout')
@@ -134,6 +145,7 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
 
 # Rate TV series route
 @app.route('/rate', methods=['GET', 'POST'])
@@ -153,6 +165,7 @@ def rate():
         return redirect(url_for('index'))
     return render_template('rate.html', dataset=dataset)
 
+
 # Recommend TV series route
 @app.route('/recommend', methods=['GET', 'POST'])
 @login_required
@@ -165,6 +178,7 @@ def recommend():
         num_recommendations = int(data['num_recommendations'])
         recommendations = recommend_tv_series_personalized(current_user, title, num_recommendations)
     return render_template('recommend.html', recommendations=recommendations, dataset=dataset, title=title)
+
 
 def recommend_tv_series_personalized(user, title, num_recommendations=5):
     content_recommendations = recommend_tv_series(title, num_recommendations)
@@ -181,6 +195,7 @@ def recommend_tv_series_personalized(user, title, num_recommendations=5):
     else:
         recommendations = content_recommendations
     return recommendations
+
 
 if __name__ == '__main__':
     with app.app_context():
