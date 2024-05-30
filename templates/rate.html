@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate TV Series</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Rate TV Series</h1>
+    <form method="post">
+        <label for="title">Title</label>
+        <select name="title" id="title">
+            {% for index, row in dataset.iterrows() %}
+                <option value="{{ row['Title'] }}">{{ row['Title'] }}</option>
+            {% endfor %}
+        </select>
+        <label for="rating">Rating</label>
+        <select name="rating" id="rating">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+        </select>
+        <button type="submit">Submit Rating</button>
+    </form>
+    <a href="{{ url_for('index') }}">Back to Home</a>
+</body>
+</html>

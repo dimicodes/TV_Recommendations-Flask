@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommendations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Get Recommendations</h1>
+    <form method="post">
+        <label for="title">Title</label>
+        <select name="title" id="title">
+            {% for index, row in dataset.iterrows() %}
+                <option value="{{ row['Title'] }}">{{ row['Title'] }}</option>
+            {% endfor %}
+        </select>
+        <label for="num_recommendations">Number of Recommendations</label>
+        <input type="number" name="num_recommendations" id="num_recommendations" value="5" min="1" max="10">
+        <button type="submit">Get Recommendations</button>
+    </form>
+    {% if recommendations %}
+        <h2>Recommendations based on "{{ title }}"</h2>
+        <ul>
+            {% for recommendation in recommendations %}
+                <li>{{ recommendation }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <a href="{{ url_for('index') }}">Back to Home</a>
+</body>
+</html>
